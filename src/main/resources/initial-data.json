@@ -1,0 +1,45 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "role": "ADMIN"
+    },
+    {
+      "username": "CUST-001",
+      "password": "cust123",
+      "role": "CUSTOMER"
+    },
+    {
+      "username": "CUST-002",
+      "password": "cust123",
+      "role": "CUSTOMER"
+    }
+  ],
+  "customers": [
+    {
+      "customerId": "CUST-001",
+      "name": "Alice",
+      "status": "ACTIVE"
+    },
+    {
+      "customerId": "CUST-002",
+      "name": "Tom",
+      "status": "ACTIVE"
+    }
+  ],
+  "assets": [
+    {
+      "customerId": "CUST-001",
+      "assetName": "TRY",
+      "size": 10000.0000,
+      "usableSize": 10000.0000
+    },
+    {
+      "customerId": "CUST-002",
+      "assetName": "TRY",
+      "size": 10000.0000,
+      "usableSize": 10000.0000
+    }
+  ]
+}
