@@ -9,4 +9,5 @@ public interface AssetRepository {
     Optional<Asset> findByCustomerIdAndAssetName(String customerId, String assetName);
     List<Asset> findByCustomerId(String customerId);
     Asset save(Asset asset);
+    List<Asset> saveAll(List<Asset> assets);
 }

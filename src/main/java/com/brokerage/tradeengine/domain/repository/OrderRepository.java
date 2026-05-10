@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface OrderRepository {
     Optional<Order> findById(Long id);
+    List<Order> findPendingOrders(int limit);
     List<Order> findByFilters(
             String customerId,
             LocalDateTime startDate,
@@ -19,4 +20,5 @@ public interface OrderRepository {
             String assetName
     );
     Order save(Order order);
+    List<Order> saveAll(List<Order> orders);
 }

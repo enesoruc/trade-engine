@@ -20,6 +20,10 @@ public class Asset {
     private BigDecimal size;
     private BigDecimal usableSize;
 
+    public static Asset initialize(String customerId, String assetName) {
+        return new Asset(customerId, assetName, BigDecimal.ZERO, BigDecimal.ZERO);
+    }
+
     public Asset(String customerId, String assetName, BigDecimal size, BigDecimal usableSize) {
         this.customerId = requireText(customerId, "customerId");
         this.assetName = requireText(assetName, "assetName");
@@ -48,16 +52,21 @@ public class Asset {
         usableSize = updatedUsableSize;
     }
 
-    public void decreaseSize(BigDecimal amount) {
+    public void decreaseSizeAndUsableSize(BigDecimal amount) {
         BigDecimal normalizedAmount = normalizeAssetValue(amount, "amount");
         BigDecimal updatedSize = size.subtract(normalizedAmount).setScale(ASSET_SCALE, RoundingMode.HALF_UP);
+        BigDecimal updatedUsable = usableSize.subtract(normalizedAmount).setScale(ASSET_SCALE, RoundingMode.HALF_UP);
         if (updatedSize.signum() < 0) {
             throw new NonNegativeValueRequiredException("size");
         }
-        if (usableSize.compareTo(updatedSize) > 0) {
+        if (updatedUsable.signum() < 0) {
+            throw new NonNegativeValueRequiredException("usableSize");
+        }
+        if (updatedUsable.compareTo(updatedSize) > 0) {
             throw new UsableSizeExceedsSizeException();
         }
         size = updatedSize;
+        usableSize = updatedUsable;
     }
 
     public void increaseSizeAndUsableSize(BigDecimal amount) {

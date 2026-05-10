@@ -1,11 +1,14 @@
 package com.brokerage.tradeengine.infrastructure.config;
 
+import com.brokerage.tradeengine.application.dto.response.ErrorResponse;
 import com.brokerage.tradeengine.application.exception.SecurityUsersLoadException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +24,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +34,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
@@ -41,7 +46,28 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                writeSecurityError(objectMapper, response, HttpServletResponse.SC_UNAUTHORIZED,
+                                        "UNAUTHENTICATED", "Authentication required"))
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                writeSecurityError(objectMapper, response, HttpServletResponse.SC_FORBIDDEN,
+                                        "ACCESS_DENIED", "Access denied"))
+                )
                 .build();
+    }
+
+    private static void writeSecurityError(
+            ObjectMapper objectMapper,
+            HttpServletResponse response,
+            int status,
+            String code,
+            String message
+    ) throws IOException {
+        response.setStatus(status);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getWriter(), new ErrorResponse(code, message, Instant.now()));
     }
 
     @Bean
