@@ -5,6 +5,7 @@ import com.brokerage.tradeengine.application.dto.request.CreateOrderRequest;
 import com.brokerage.tradeengine.application.dto.response.CreateOrderResponse;
 import com.brokerage.tradeengine.domain.exception.AssetNotFoundException;
 import com.brokerage.tradeengine.domain.exception.InsufficientUsableSizeException;
+import com.brokerage.tradeengine.domain.exception.TryAssetNotAllowedException;
 import com.brokerage.tradeengine.domain.model.Asset;
 import com.brokerage.tradeengine.domain.model.Order;
 import com.brokerage.tradeengine.domain.model.OrderSide;
@@ -107,6 +108,16 @@ class CreateOrderUseCaseTest {
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "TRY")).thenReturn(Optional.empty());
 
         assertThrows(AssetNotFoundException.class, () -> createOrderUseCase.execute(request));
+        verifyNoMoreInteractions(orderRepository);
+    }
+
+    @Test
+    void execute_shouldThrow_whenAssetNameIsTRY() {
+        CreateOrderRequest request = new CreateOrderRequest(
+                "cust-1", "TRY", OrderSide.BUY, new BigDecimal("1.00"), new BigDecimal("100.00")
+        );
+
+        assertThrows(TryAssetNotAllowedException.class, () -> createOrderUseCase.execute(request));
         verifyNoMoreInteractions(orderRepository);
     }
 }

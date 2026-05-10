@@ -7,13 +7,11 @@ import com.brokerage.tradeengine.domain.model.OrderSide;
 import com.brokerage.tradeengine.domain.model.Status;
 import com.brokerage.tradeengine.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 public class ListOrdersUseCase implements ListOrdersInputPort {
 

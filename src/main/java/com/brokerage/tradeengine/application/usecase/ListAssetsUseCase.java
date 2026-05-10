@@ -2,12 +2,10 @@ package com.brokerage.tradeengine.application.usecase;
 
 import com.brokerage.tradeengine.application.dto.response.AssetListItemResponse;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
 public class ListAssetsUseCase {
 
     private final AssetRepository assetRepository;

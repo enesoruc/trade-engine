@@ -5,6 +5,7 @@ import com.brokerage.tradeengine.domain.exception.BlankFieldException;
 import com.brokerage.tradeengine.domain.exception.OrderNotPendingForCancelException;
 import com.brokerage.tradeengine.domain.exception.OrderNotPendingForMatchException;
 import com.brokerage.tradeengine.domain.exception.PositiveValueRequiredException;
+import com.brokerage.tradeengine.domain.exception.TryAssetNotAllowedException;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -80,7 +81,11 @@ public class Order {
         if (value == null || value.isBlank()) {
             throw new BlankFieldException(fieldName);
         }
-        return value;
+        String trimmed = value.trim();
+        if ("assetName".equals(fieldName) && AssetSymbol.TRY.name().equalsIgnoreCase(trimmed)) {
+            throw new TryAssetNotAllowedException();
+        }
+        return trimmed;
     }
 
     private static BigDecimal normalizeSize(BigDecimal value) {

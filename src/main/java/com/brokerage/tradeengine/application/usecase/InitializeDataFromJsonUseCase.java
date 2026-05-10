@@ -7,10 +7,8 @@ import com.brokerage.tradeengine.domain.model.Customer;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
 import com.brokerage.tradeengine.domain.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @RequiredArgsConstructor
 public class InitializeDataFromJsonUseCase {
 

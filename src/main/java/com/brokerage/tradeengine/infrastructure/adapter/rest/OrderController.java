@@ -48,6 +48,7 @@ public class OrderController {
     @PostMapping
     @PreAuthorize("hasAnyRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new order", description = "Creates a new buy or sell order for a customer.")
     public CreateOrderResponse createOrder(@Valid @RequestBody CreateOrderRequest request) {
         String customerId = customerIdResolver.resolve(request.customerId());
         CreateOrderRequest createOrderRequest = new CreateOrderRequest(
@@ -78,6 +79,7 @@ public class OrderController {
 
     @DeleteMapping("/{orderId}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @Operation(summary = "Cancel an order", description = "Cancels an existing order by its ID.")
     public OrderItemResponse cancelOrder(
             @PathVariable Long orderId,
             @RequestParam(required = false) String customerId
@@ -89,6 +91,7 @@ public class OrderController {
     @PostMapping("/match")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Match orders", description = "Initiates the order matching process.")
     public void matchOrder() {
         matchOrderUseCase.execute();
     }
