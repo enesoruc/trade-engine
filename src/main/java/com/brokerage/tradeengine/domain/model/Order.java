@@ -38,8 +38,8 @@ public class Order {
         this.customerId = requireText(customerId, "customerId");
         this.assetName = requireText(assetName, "assetName");
         this.orderSide = Objects.requireNonNull(orderSide, "orderSide cannot be null");
-        this.size = normalizeSize(size, "size");
-        this.price = normalizePrice(price, "price");
+        this.size = normalizeSize(size);
+        this.price = normalizePrice(price);
         this.status = Objects.requireNonNull(status, "status cannot be null");
         this.createDate = Objects.requireNonNull(createDate, "createDate cannot be null");
     }
@@ -49,13 +49,10 @@ public class Order {
             String assetName,
             OrderSide orderSide,
             BigDecimal size,
-            BigDecimal price,
-            Status status,
-            LocalDateTime createDate
+            BigDecimal price
     ) {
-        this(null, customerId, assetName, orderSide, size, price, status, createDate);
+        this(null, customerId, assetName, orderSide, size, price, Status.PENDING, LocalDateTime.now());
     }
-
 
     public void cancel() {
         if (status != Status.PENDING) {
@@ -71,11 +68,12 @@ public class Order {
         this.status = Status.MATCHED;
     }
 
-    public BigDecimal calculateReservationAmount() {
-        if (orderSide == OrderSide.BUY) {
-            return normalizePrice(size.multiply(price), "reservationAmount");
-        }
-        return normalizeSize(size, "reservationAmount");
+    public BigDecimal calculateTradeValue() {
+        return normalizePrice(size.multiply(price));
+    }
+
+    public String collateralAssetName() {
+        return orderSide == OrderSide.BUY ? AssetSymbol.TRY.name() : assetName;
     }
 
     private static String requireText(String value, String fieldName) {
@@ -85,12 +83,12 @@ public class Order {
         return value;
     }
 
-    private static BigDecimal normalizeSize(BigDecimal value, String fieldName) {
-        return validateAndScale(value, fieldName);
+    private static BigDecimal normalizeSize(BigDecimal value) {
+        return validateAndScale(value, "size");
     }
 
-    private static BigDecimal normalizePrice(BigDecimal value, String fieldName) {
-        return validateAndScale(value, fieldName);
+    private static BigDecimal normalizePrice(BigDecimal value) {
+        return validateAndScale(value, "price");
     }
 
     private static BigDecimal validateAndScale(BigDecimal value, String fieldName) {
