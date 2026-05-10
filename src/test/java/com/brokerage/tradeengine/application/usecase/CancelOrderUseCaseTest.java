@@ -3,6 +3,7 @@ package com.brokerage.tradeengine.application.usecase;
 import com.brokerage.tradeengine.application.dto.mapper.OrderItemResponseMapper;
 import com.brokerage.tradeengine.application.dto.request.CancelOrderRequest;
 import com.brokerage.tradeengine.application.dto.response.OrderItemResponse;
+import com.brokerage.tradeengine.application.exception.OrderNotFoundException;
 import com.brokerage.tradeengine.application.exception.OrderOwnershipViolationException;
 import com.brokerage.tradeengine.domain.model.Asset;
 import com.brokerage.tradeengine.domain.model.Order;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +69,7 @@ class CancelOrderUseCaseTest {
         OrderItemResponse response = cancelOrderUseCase.execute(new CancelOrderRequest(10L, "cust-1"));
 
         assertEquals(Status.CANCELED.name(), response.status());
-        assertEquals(new BigDecimal("1000.0000"), tryAsset.getUsableSize());
+        assertEquals(new BigDecimal("1000.00"), tryAsset.getUsableSize());
         verify(assetRepository).save(tryAsset);
     }
 
@@ -75,10 +77,10 @@ class CancelOrderUseCaseTest {
     void execute_shouldCancelSellOrderAndReleaseStockReservation() {
         Order order = new Order(
                 11L, "cust-1", "AAPL", OrderSide.SELL,
-                new BigDecimal("3.5000"), new BigDecimal("90.00"),
+                new BigDecimal("1.00"), new BigDecimal("90.00"),
                 Status.PENDING, LocalDateTime.now()
         );
-        Asset stockAsset = new Asset("cust-1", "AAPL", new BigDecimal("10.0000"), new BigDecimal("6.5000"));
+        Asset stockAsset = new Asset("cust-1", "AAPL", new BigDecimal("90.00"), new BigDecimal("00.00"));
 
         when(orderRepository.findById(11L)).thenReturn(Optional.of(order));
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "AAPL")).thenReturn(Optional.of(stockAsset));
@@ -87,7 +89,7 @@ class CancelOrderUseCaseTest {
         OrderItemResponse response = cancelOrderUseCase.execute(new CancelOrderRequest(11L, "cust-1"));
 
         assertEquals(Status.CANCELED.name(), response.status());
-        assertEquals(new BigDecimal("10.0000"), stockAsset.getUsableSize());
+        assertEquals(new BigDecimal("90.00"), stockAsset.getUsableSize());
         verify(assetRepository).save(stockAsset);
     }
 
@@ -95,7 +97,7 @@ class CancelOrderUseCaseTest {
     void execute_shouldThrow_whenCustomerDoesNotOwnOrder() {
         Order order = new Order(
                 12L, "cust-1", "AAPL", OrderSide.SELL,
-                new BigDecimal("1.0000"), new BigDecimal("90.00"),
+                new BigDecimal("1.00"), new BigDecimal("90.00"),
                 Status.PENDING, LocalDateTime.now()
         );
 
@@ -105,5 +107,16 @@ class CancelOrderUseCaseTest {
                 OrderOwnershipViolationException.class,
                 () -> cancelOrderUseCase.execute(new CancelOrderRequest(12L, "cust-2"))
         );
+    }
+
+    @Test
+    void execute_shouldThrow_whenOrderDoesNotExist() {
+        when(orderRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                OrderNotFoundException.class,
+                () -> cancelOrderUseCase.execute(new CancelOrderRequest(99L, "cust-1"))
+        );
+        verify(assetRepository, never()).save(any(Asset.class));
     }
 }

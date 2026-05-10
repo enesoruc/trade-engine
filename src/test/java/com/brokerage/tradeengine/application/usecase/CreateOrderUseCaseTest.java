@@ -3,6 +3,7 @@ package com.brokerage.tradeengine.application.usecase;
 import com.brokerage.tradeengine.application.dto.mapper.CreateOrderResponseMapper;
 import com.brokerage.tradeengine.application.dto.request.CreateOrderRequest;
 import com.brokerage.tradeengine.application.dto.response.CreateOrderResponse;
+import com.brokerage.tradeengine.domain.exception.AssetNotFoundException;
 import com.brokerage.tradeengine.domain.exception.InsufficientUsableSizeException;
 import com.brokerage.tradeengine.domain.model.Asset;
 import com.brokerage.tradeengine.domain.model.Order;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,18 +61,18 @@ class CreateOrderUseCaseTest {
         CreateOrderResponse response = createOrderUseCase.execute(request);
 
         assertEquals(Status.PENDING.name(), response.status());
-        assertEquals(new BigDecimal("800.0000"), tryAsset.getUsableSize());
+        assertEquals(new BigDecimal("800.00"), tryAsset.getUsableSize());
 
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository).save(orderCaptor.capture());
         assertEquals(OrderSide.BUY, orderCaptor.getValue().getOrderSide());
-        assertEquals(new BigDecimal("2.0000"), orderCaptor.getValue().getSize());
+        assertEquals(new BigDecimal("2.00"), orderCaptor.getValue().getSize());
     }
 
     @Test
     void execute_shouldReserveStockBalanceAndCreatePendingSellOrder() {
         CreateOrderRequest request = new CreateOrderRequest(
-                "cust-1", "AAPL", OrderSide.SELL, new BigDecimal("3.5000"), new BigDecimal("1.00")
+                "cust-1", "AAPL", OrderSide.SELL, new BigDecimal("3.50"), new BigDecimal("1.00")
         );
         Asset stockAsset = new Asset("cust-1", "AAPL", new BigDecimal("10.0000"), new BigDecimal("10.0000"));
         Asset tryAsset = new Asset("cust-1", "TRY", new BigDecimal("0.0000"), new BigDecimal("0.0000"));
@@ -82,7 +84,7 @@ class CreateOrderUseCaseTest {
         CreateOrderResponse response = createOrderUseCase.execute(request);
 
         assertEquals(Status.PENDING.name(), response.status());
-        assertEquals(new BigDecimal("6.5000"), stockAsset.getUsableSize());
+        assertEquals(new BigDecimal("6.50"), stockAsset.getUsableSize());
     }
 
     @Test
@@ -95,5 +97,16 @@ class CreateOrderUseCaseTest {
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "TRY")).thenReturn(Optional.of(tryAsset));
 
         assertThrows(InsufficientUsableSizeException.class, () -> createOrderUseCase.execute(request));
+    }
+
+    @Test
+    void execute_shouldThrow_whenCollateralAssetDoesNotExist() {
+        CreateOrderRequest request = new CreateOrderRequest(
+                "cust-1", "AAPL", OrderSide.BUY, new BigDecimal("1.0000"), new BigDecimal("100.00")
+        );
+        when(assetRepository.findByCustomerIdAndAssetName("cust-1", "TRY")).thenReturn(Optional.empty());
+
+        assertThrows(AssetNotFoundException.class, () -> createOrderUseCase.execute(request));
+        verifyNoMoreInteractions(orderRepository);
     }
 }
