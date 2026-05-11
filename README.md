@@ -1,6 +1,6 @@
 # Trade Engine (Brokerage API)
 
-A **Java 21** + **Spring Boot** backend API for the **brokerage** case study. It manages customer **assets** and **orders**, and supports **order cancellation** plus **admin-only order matching**.
+A **Java 21** + **Spring Boot** backend API for the **brokerage** firms. It manages customer **assets** and **orders**, and supports **order cancellation** plus **admin-only order matching**.
 
 **Tech stack**
 - **Java**: 21
