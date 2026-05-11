@@ -1,12 +1,13 @@
 package com.brokerage.tradeengine.application.usecase;
 
 import com.brokerage.tradeengine.application.dto.response.AssetListItemResponse;
+import com.brokerage.tradeengine.application.port.in.ListAssetsInputPort;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public class ListAssetsUseCase {
+public class ListAssetsUseCase implements ListAssetsInputPort {
 
     private final AssetRepository assetRepository;
 
@@ -15,6 +16,7 @@ public class ListAssetsUseCase {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public List<AssetListItemResponse> execute(String customerId) {
         return assetRepository.findByCustomerId(customerId)
                 .stream()

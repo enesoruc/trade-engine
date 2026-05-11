@@ -1,7 +1,7 @@
 package com.brokerage.tradeengine.infrastructure.adapter.rest;
 
 import com.brokerage.tradeengine.application.dto.response.AssetListItemResponse;
-import com.brokerage.tradeengine.application.usecase.ListAssetsUseCase;
+import com.brokerage.tradeengine.application.port.in.ListAssetsInputPort;
 import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ import java.util.List;
 @Tag(name = "Asset Management", description = "Asset listing operations")
 public class AssetController {
 
-    private final ListAssetsUseCase listAssetsUseCase;
+    private final ListAssetsInputPort listAssetsInputPort;
     private final CustomerIdResolver customerIdResolver;
 
     @GetMapping
@@ -29,6 +29,6 @@ public class AssetController {
     @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public List<AssetListItemResponse> listAssets( @RequestParam(required = false) String customerId) {
         String effectiveCustomerId = customerIdResolver.resolve(customerId);
-        return listAssetsUseCase.execute(effectiveCustomerId);
+        return listAssetsInputPort.execute(effectiveCustomerId);
     }
 }

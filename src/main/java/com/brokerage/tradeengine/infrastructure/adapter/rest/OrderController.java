@@ -39,10 +39,10 @@ import java.util.List;
 @Tag(name = "Order Management", description = "Order operations")
 public class OrderController {
 
-    private final ListOrdersInputPort listOrdersUseCase;
-    private final CreateOrderInputPort createOrderUseCase;
-    private final CancelOrderInputPort cancelOrderUseCase;
-    private final MatchOrderInputPort matchOrderUseCase;
+    private final ListOrdersInputPort listOrdersInputPort;
+    private final CreateOrderInputPort createOrderInputPort;
+    private final CancelOrderInputPort cancelOrderInputPort;
+    private final MatchOrderInputPort matchOrderInputPort;
     private final CustomerIdResolver customerIdResolver;
 
     @PostMapping
@@ -58,7 +58,7 @@ public class OrderController {
                 request.size(),
                 request.price()
         );
-        return createOrderUseCase.execute(createOrderRequest);
+        return createOrderInputPort.execute(createOrderRequest);
     }
 
     @GetMapping
@@ -73,7 +73,7 @@ public class OrderController {
             @RequestParam(required = false) String assetName
     ) {
         String effectiveCustomerId = customerIdResolver.resolve(customerId);
-        List<OrderItemResponse> orders = listOrdersUseCase.execute(effectiveCustomerId, startDate, endDate, status, side, assetName);
+        List<OrderItemResponse> orders = listOrdersInputPort.execute(effectiveCustomerId, startDate, endDate, status, side, assetName);
         return new ListOrdersResponse(orders);
     }
 
@@ -85,7 +85,7 @@ public class OrderController {
             @RequestParam(required = false) String customerId
     ) {
         String effectiveCustomerId = customerIdResolver.resolve(customerId);
-        return cancelOrderUseCase.execute(new CancelOrderRequest(orderId, effectiveCustomerId));
+        return cancelOrderInputPort.execute(new CancelOrderRequest(orderId, effectiveCustomerId));
     }
 
     @PostMapping("/match")
@@ -93,6 +93,6 @@ public class OrderController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @Operation(summary = "Match orders", description = "Initiates the order matching process.")
     public void matchOrder() {
-        matchOrderUseCase.execute();
+        matchOrderInputPort.execute();
     }
 }

@@ -38,8 +38,9 @@ tradeengine
 │  │  │           │  │  ├─ request/
 │  │  │           │  │  └─ response/
 │  │  │           │  ├─ exception/
-│  │  │           │  ├─ port/                       # inbound ports; provider interfaces
-│  │  │           │  │  └─ in/
+│  │  │           │  ├─ port/                       # application ports (hexagonal)
+│  │  │           │  │  ├─ in/                      # input ports (use cases)
+│  │  │           │  │  └─ out/                     # output ports (driven ports)
 │  │  │           │  ├─ service/
 │  │  │           │  └─ usecase/
 │  │  │           ├─ domain/                        # aggregates, domain services, repository ports
@@ -50,7 +51,7 @@ tradeengine
 │  │  │           │  └─ service/
 │  │  │           └─ infrastructure/              # Spring adapters, configuration
 │  │  │              ├─ adapter/
-│  │  │              │  ├─ config/                 # e.g. file-based initial data
+│  │  │              │  ├─ initialdata/            # e.g. file-based initial data
 │  │  │              │  ├─ persistence/            # JPA entities, Spring Data, adapters
 │  │  │              │  │  ├─ entity/
 │  │  │              │  │  ├─ mapper/
@@ -86,7 +87,7 @@ tradeengine
 ## Build & Run
 
 ### Requirements
-- Java 21+
+- Java 21+ (recommended: Temurin 21)
 
 ### Run with Gradle
 

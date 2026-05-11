@@ -1,6 +1,6 @@
 package com.brokerage.tradeengine.infrastructure.adapter.rest;
 
-import com.brokerage.tradeengine.application.port.AuthenticatedCustomerProvider;
+import com.brokerage.tradeengine.application.port.out.AuthenticatedCustomerProvider;
 import com.brokerage.tradeengine.application.service.CustomerIdResolutionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

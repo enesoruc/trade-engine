@@ -1,7 +1,7 @@
 package com.brokerage.tradeengine.application.usecase;
 
 import com.brokerage.tradeengine.application.dto.InitialData;
-import com.brokerage.tradeengine.application.port.InitialDataProvider;
+import com.brokerage.tradeengine.application.port.out.InitialDataProvider;
 import com.brokerage.tradeengine.domain.model.Asset;
 import com.brokerage.tradeengine.domain.model.Customer;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-public class InitializeDataFromJsonUseCase {
+public class LoadInitialDataUseCase {
 
     private final CustomerRepository customerRepository;
     private final AssetRepository assetRepository;
@@ -44,4 +44,3 @@ public class InitializeDataFromJsonUseCase {
         }
     }
 }
-

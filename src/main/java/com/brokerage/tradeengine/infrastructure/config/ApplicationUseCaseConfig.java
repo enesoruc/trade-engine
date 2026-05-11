@@ -2,17 +2,18 @@ package com.brokerage.tradeengine.infrastructure.config;
 
 import com.brokerage.tradeengine.application.dto.mapper.CreateOrderResponseMapper;
 import com.brokerage.tradeengine.application.dto.mapper.OrderItemResponseMapper;
-import com.brokerage.tradeengine.application.port.InitialDataProvider;
+import com.brokerage.tradeengine.application.port.out.InitialDataProvider;
 import com.brokerage.tradeengine.application.port.in.CancelOrderInputPort;
 import com.brokerage.tradeengine.application.port.in.CreateOrderInputPort;
+import com.brokerage.tradeengine.application.port.in.ListAssetsInputPort;
 import com.brokerage.tradeengine.application.port.in.ListOrdersInputPort;
 import com.brokerage.tradeengine.application.port.in.MatchOrderInputPort;
 import com.brokerage.tradeengine.application.service.CustomerIdResolutionService;
 import com.brokerage.tradeengine.application.usecase.CancelOrderUseCase;
 import com.brokerage.tradeengine.application.usecase.CreateOrderUseCase;
-import com.brokerage.tradeengine.application.usecase.InitializeDataFromJsonUseCase;
 import com.brokerage.tradeengine.application.usecase.ListAssetsUseCase;
 import com.brokerage.tradeengine.application.usecase.ListOrdersUseCase;
+import com.brokerage.tradeengine.application.usecase.LoadInitialDataUseCase;
 import com.brokerage.tradeengine.application.usecase.MatchOrderUseCase;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
 import com.brokerage.tradeengine.domain.repository.CustomerRepository;
@@ -54,7 +55,7 @@ public class ApplicationUseCaseConfig {
     }
 
     @Bean
-    ListAssetsUseCase listAssetsUseCase(AssetRepository assetRepository) {
+    ListAssetsInputPort listAssetsUseCase(AssetRepository assetRepository) {
         return new ListAssetsUseCase(assetRepository);
     }
 
@@ -69,12 +70,12 @@ public class ApplicationUseCaseConfig {
     }
 
     @Bean
-    InitializeDataFromJsonUseCase initializeDataFromJsonUseCase(
+    LoadInitialDataUseCase loadInitialDataUseCase(
             CustomerRepository customerRepository,
             AssetRepository assetRepository,
             InitialDataProvider initialDataProvider
     ) {
-        return new InitializeDataFromJsonUseCase(customerRepository, assetRepository, initialDataProvider);
+        return new LoadInitialDataUseCase(customerRepository, assetRepository, initialDataProvider);
     }
 
     @Bean
