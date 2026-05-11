@@ -102,4 +102,18 @@ public class Order {
         }
         return value.setScale(AssetConstants.ASSET_SCALE, RoundingMode.HALF_UP);
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", customerId='" + customerId + '\'' +
+                ", assetName='" + assetName + '\'' +
+                ", orderSide=" + orderSide +
+                ", size=" + size +
+                ", price=" + price +
+                ", status=" + status +
+                ", createDate=" + createDate +
+                '}';
+    }
 }

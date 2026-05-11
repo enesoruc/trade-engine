@@ -89,4 +89,14 @@ public class Asset {
         }
         return value.setScale(ASSET_SCALE, RoundingMode.HALF_UP);
     }
+
+    @Override
+    public String toString() {
+        return "Asset{" +
+                "customerId='" + customerId + '\'' +
+                ", assetName='" + assetName + '\'' +
+                ", size=" + size +
+                ", usableSize=" + usableSize +
+                '}';
+    }
 }
