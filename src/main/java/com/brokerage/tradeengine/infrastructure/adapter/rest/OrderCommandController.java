@@ -3,24 +3,18 @@ package com.brokerage.tradeengine.infrastructure.adapter.rest;
 import com.brokerage.tradeengine.application.dto.request.CancelOrderRequest;
 import com.brokerage.tradeengine.application.dto.request.CreateOrderRequest;
 import com.brokerage.tradeengine.application.dto.response.CreateOrderResponse;
-import com.brokerage.tradeengine.application.dto.response.ListOrdersResponse;
 import com.brokerage.tradeengine.application.dto.response.OrderItemResponse;
 import com.brokerage.tradeengine.application.port.in.CancelOrderInputPort;
 import com.brokerage.tradeengine.application.port.in.CreateOrderInputPort;
-import com.brokerage.tradeengine.application.port.in.ListOrdersInputPort;
 import com.brokerage.tradeengine.application.port.in.MatchOrderInputPort;
-import com.brokerage.tradeengine.domain.model.OrderSide;
-import com.brokerage.tradeengine.domain.model.Status;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,17 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
-@Tag(name = "Order Management", description = "Order operations")
-public class OrderController {
+@Tag(name = "Order Management - Commands", description = "Order command operations")
+public class OrderCommandController {
 
-    private final ListOrdersInputPort listOrdersInputPort;
     private final CreateOrderInputPort createOrderInputPort;
     private final CancelOrderInputPort cancelOrderInputPort;
     private final MatchOrderInputPort matchOrderInputPort;
@@ -59,22 +49,6 @@ public class OrderController {
                 request.price()
         );
         return createOrderInputPort.execute(createOrderRequest);
-    }
-
-    @GetMapping
-    @Operation(summary = "List customer orders", description = "Returns the orders of the logged-in customer.")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
-    public ListOrdersResponse listOrders(
-            @RequestParam(required = false) String customerId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(required = false) Status status,
-            @RequestParam(required = false) OrderSide side,
-            @RequestParam(required = false) String assetName
-    ) {
-        String effectiveCustomerId = customerIdResolver.resolve(customerId);
-        List<OrderItemResponse> orders = listOrdersInputPort.execute(effectiveCustomerId, startDate, endDate, status, side, assetName);
-        return new ListOrdersResponse(orders);
     }
 
     @DeleteMapping("/{orderId}")

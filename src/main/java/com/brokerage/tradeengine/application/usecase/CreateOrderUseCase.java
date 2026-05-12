@@ -44,11 +44,11 @@ public class CreateOrderUseCase implements CreateOrderInputPort {
         assetRepository.save(collateral);
         log.debug("Collateral asset updated: {}", collateral);
 
-        Order savedOrder = orderRepository.save(order);
-        log.info("Order saved successfully. Order details: {}", savedOrder);
+        orderRepository.save(order);
+        log.info("Order saved successfully. Order details: {}", order);
 
         Asset tryAsset = findAsset(request.customerId(), AssetSymbol.TRY.name());
-        return mapper.map(savedOrder, tryAsset.getUsableSize());
+        return mapper.map(order, tryAsset.getUsableSize());
     }
 
     private Asset findAsset(String customerId, String assetName) {

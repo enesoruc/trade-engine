@@ -1,5 +1,6 @@
 package com.brokerage.tradeengine.infrastructure.adapter.persistence;
 
+import com.brokerage.tradeengine.domain.common.PagedResult;
 import com.brokerage.tradeengine.domain.exception.CustomerNotFoundException;
 import com.brokerage.tradeengine.domain.model.Order;
 import com.brokerage.tradeengine.domain.model.OrderSide;
@@ -43,31 +44,35 @@ public class OrderRepositoryAdapter implements OrderRepository {
     }
 
     @Override
-    public List<Order> findByFilters(
+    public PagedResult<Order> findByFilters(
             String customerId,
             LocalDateTime startDate,
             LocalDateTime endDate,
             Status status,
             OrderSide orderSide,
-            String assetName
+            String assetName,
+            Integer pageNumber,
+            Integer pageSize
     ) {
-        return springDataOrderRepository.findAll(
-                        OrderSpecifications.byFilters(customerId, startDate, endDate, status, orderSide, assetName)
-                )
+        var pageRequest = PageRequest.of(pageNumber, pageSize);
+        var pageableOrders = springDataOrderRepository.findAll(
+                OrderSpecifications.byFilters(customerId, startDate, endDate, status, orderSide, assetName), pageRequest);
+        var orders = pageableOrders.getContent()
                 .stream()
                 .map(this::toDomain)
                 .toList();
+        return PagedResult.of(orders, pageableOrders.getTotalPages(), pageableOrders.getTotalElements());
     }
 
     @Override
-    public Order save(Order order) {
-        return saveAll(List.of(order)).getFirst();
+    public void save(Order order) {
+        saveAll(List.of(order));
     }
 
     @Override
-    public List<Order> saveAll(List<Order> orders) {
+    public void saveAll(List<Order> orders) {
         if (orders.isEmpty()) {
-            return List.of();
+            return;
         }
 
         Map<String, CustomerEntity> customersById = springDataCustomerRepository.findByCustomerIdIn(
@@ -80,10 +85,7 @@ public class OrderRepositoryAdapter implements OrderRepository {
                 .map(order -> toEntity(order, customersById))
                 .toList();
 
-        return springDataOrderRepository.saveAll(entities)
-                .stream()
-                .map(this::toDomain)
-                .toList();
+        springDataOrderRepository.saveAll(entities);
     }
 
     private OrderEntity toEntity(Order order, Map<String, CustomerEntity> customersById) {

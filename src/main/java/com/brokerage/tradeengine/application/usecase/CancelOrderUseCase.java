@@ -41,9 +41,9 @@ public class CancelOrderUseCase implements CancelOrderInputPort {
 
         releaseReservedBalance(order);
 
-        Order savedOrder = orderRepository.save(order);
-        log.info("Order cancelled and saved successfully. Cancelled order details: {}", savedOrder);
-        return orderMapper.map(savedOrder);
+        orderRepository.save(order);
+        log.info("Order cancelled and saved successfully. Cancelled order details: {}", order);
+        return orderMapper.map(order);
     }
 
     private void validateOwnership(Order order, String customerId) {

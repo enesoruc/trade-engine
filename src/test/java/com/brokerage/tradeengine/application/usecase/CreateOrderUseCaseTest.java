@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -57,7 +56,6 @@ class CreateOrderUseCaseTest {
         Asset tryAsset = new Asset("cust-1", "TRY", new BigDecimal("1000.0000"), new BigDecimal("1000.0000"));
 
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "TRY")).thenReturn(Optional.of(tryAsset));
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         CreateOrderResponse response = createOrderUseCase.execute(request);
 
@@ -80,7 +78,6 @@ class CreateOrderUseCaseTest {
 
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "AAPL")).thenReturn(Optional.of(stockAsset));
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "TRY")).thenReturn(Optional.of(tryAsset));
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         CreateOrderResponse response = createOrderUseCase.execute(request);
 

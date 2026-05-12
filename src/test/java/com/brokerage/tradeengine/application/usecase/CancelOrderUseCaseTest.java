@@ -64,7 +64,6 @@ class CancelOrderUseCaseTest {
 
         when(orderRepository.findById(10L)).thenReturn(Optional.of(order));
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "TRY")).thenReturn(Optional.of(tryAsset));
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         OrderItemResponse response = cancelOrderUseCase.execute(new CancelOrderRequest(10L, "cust-1"));
 
@@ -84,7 +83,6 @@ class CancelOrderUseCaseTest {
 
         when(orderRepository.findById(11L)).thenReturn(Optional.of(order));
         when(assetRepository.findByCustomerIdAndAssetName("cust-1", "AAPL")).thenReturn(Optional.of(stockAsset));
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         OrderItemResponse response = cancelOrderUseCase.execute(new CancelOrderRequest(11L, "cust-1"));
 
