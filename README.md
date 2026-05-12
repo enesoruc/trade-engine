@@ -140,19 +140,42 @@ Seed credentials (examples):
 
 Base path: `/api/v1`
 
-### Get orders
+### List orders (paged)
 `GET /api/v1/orders`
 
+Optional query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `customerId` | Target customer (optional; when omitted, inferred from the authenticated user; admins may supply it to query another customer). |
+| `startDate` | Inclusive lower bound for `createDate`, ISO-8601 (`LocalDateTime`). |
+| `endDate` | Inclusive upper bound for `createDate`, ISO-8601 (`LocalDateTime`). |
+| `status` | Order status filter (`PENDING`, `MATCHED`, `CANCELED`). |
+| `side` | Order side filter (`BUY`, `SELL`). |
+| `assetName` | Asset symbol filter. |
+| `page` | **Zero-based** page index (first page is `1`; defaults to `1` if omitted). |
+| `size` | Page size (defaults to `10` if omitted). |
+
 ```bash
-curl --request GET "http://localhost:8080/api/v1/orders" \
+curl --request GET "http://localhost:8080/api/v1/orders?page=0&size=10" \
   --user "CUST-001:cust123"
 ```
 
-**Response**
+Optional filters example:
+
+```bash
+curl -G "http://localhost:8080/api/v1/orders" \
+  --user "CUST-001:cust123" \
+  --data-urlencode "status=PENDING" \
+  --data-urlencode "side=BUY" \
+  --data-urlencode "assetName=testhisse1"
+```
+
+**Response** (`PagedResult`: `content` is the current page; `totalPages` and `totalElements` describe the full result set.)
 
 ```json
 {
-  "orders": [
+  "content": [
     {
       "orderId": 1,
       "customerId": "CUST-001",
@@ -163,7 +186,9 @@ curl --request GET "http://localhost:8080/api/v1/orders" \
       "status": "PENDING",
       "createDate": "2026-05-10T18:53:01.65803"
     }
-  ]
+  ],
+  "totalPages": 1,
+  "totalElements": 1
 }
 ```
 
@@ -182,7 +207,7 @@ curl --request POST "http://localhost:8080/api/v1/orders" \
   }'
 ```
 
-**Response**
+**Response** (`201 Created`)
 
 ```json
 {
@@ -199,6 +224,8 @@ curl --request POST "http://localhost:8080/api/v1/orders" \
 
 ### Cancel order
 `DELETE /api/v1/orders/{orderId}`
+
+Optional query parameter `customerId`: same semantics as list orders (admins may target a specific customer).
 
 ```bash
 curl --request DELETE "http://localhost:8080/api/v1/orders/1" \
@@ -223,30 +250,44 @@ curl --request DELETE "http://localhost:8080/api/v1/orders/1" \
 ### Match orders (admin)
 `POST /api/v1/orders/match`
 
+Runs matching asynchronously; returns **`202 Accepted`** with an empty body.
+
 ```bash
 curl --request POST "http://localhost:8080/api/v1/orders/match" \
   --user "admin:admin123"
 ```
 
-### Get assets
+### List assets (paged)
 `GET /api/v1/assets`
 
+Optional query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `customerId` | Target customer (optional; when omitted, inferred from the authenticated user; admins may supply it). |
+| `page` | **One-based** page number (first page is `1`; mapped internally to Spring Data). |
+| `size` | Page size (defaults to `10` if omitted). |
+
 ```bash
-curl --request GET "http://localhost:8080/api/v1/assets" \
+curl --request GET "http://localhost:8080/api/v1/assets?page=1&size=10" \
   --user "CUST-001:cust123"
 ```
 
 **Response**
 
 ```json
-[
-  {
-    "customerId": "CUST-001",
-    "assetName": "TRY",
-    "size": 10000.00,
-    "usableSize": 10000.00
-  }
-]
+{
+  "content": [
+    {
+      "customerId": "CUST-001",
+      "assetName": "TRY",
+      "size": 10000.00,
+      "usableSize": 10000.00
+    }
+  ],
+  "totalPages": 1,
+  "totalElements": 1
+}
 ```
 
 ---
