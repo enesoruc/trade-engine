@@ -1,5 +1,7 @@
 package com.brokerage.tradeengine.infrastructure.adapter.persistence;
 
+import com.brokerage.tradeengine.domain.common.PageableRequest;
+import com.brokerage.tradeengine.domain.common.PagedResult;
 import com.brokerage.tradeengine.domain.exception.CustomerNotFoundException;
 import com.brokerage.tradeengine.domain.model.Asset;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
@@ -9,6 +11,7 @@ import com.brokerage.tradeengine.infrastructure.adapter.persistence.entity.Custo
 import com.brokerage.tradeengine.infrastructure.adapter.persistence.repository.SpringDataAssetRepository;
 import com.brokerage.tradeengine.infrastructure.adapter.persistence.repository.SpringDataCustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,11 +35,14 @@ public class AssetRepositoryAdapter implements AssetRepository {
     }
 
     @Override
-    public List<Asset> findByCustomerId(String customerId) {
-        return springDataAssetRepository.findByCustomer_CustomerId(customerId)
+    public PagedResult<Asset> findByCustomerId(String customerId, PageableRequest pageableRequest) {
+        var pageRequest = PageRequest.of(pageableRequest.pageNumber(), pageableRequest.pageSize());
+        var pageableAssets = springDataAssetRepository.findByCustomer_CustomerId(customerId, pageRequest);
+        var assets = pageableAssets
                 .stream()
                 .map(assetMapper::toDomain)
                 .toList();
+        return PagedResult.of(assets, pageableAssets.getTotalPages(), pageableAssets.getTotalElements());
     }
 
     @Override

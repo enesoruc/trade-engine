@@ -2,6 +2,7 @@ package com.brokerage.tradeengine.application.usecase;
 
 import com.brokerage.tradeengine.application.dto.mapper.OrderItemResponseMapper;
 import com.brokerage.tradeengine.application.dto.response.OrderItemResponse;
+import com.brokerage.tradeengine.domain.common.PagedResult;
 import com.brokerage.tradeengine.domain.model.Order;
 import com.brokerage.tradeengine.domain.model.OrderSide;
 import com.brokerage.tradeengine.domain.model.Status;
@@ -62,16 +63,17 @@ class ListOrdersUseCaseTest {
                 order.getCreateDate()
         );
 
-        when(orderRepository.findByFilters(customerId, startDate, endDate, status, side, assetName))
-                .thenReturn(List.of(order));
+        when(orderRepository.findByFilters(customerId, startDate, endDate, status, side, assetName, 1, 10))
+                .thenReturn(PagedResult.of(List.of(order), 1, 1));
         when(orderMapper.map(order)).thenReturn(response);
 
-        List<OrderItemResponse> result = listOrdersUseCase.execute(customerId, startDate, endDate, status, side, assetName);
+        PagedResult<OrderItemResponse> result =
+                listOrdersUseCase.execute(customerId, startDate, endDate, status, side, assetName, 1, 10);
 
-        assertEquals(1, result.size());
-        assertEquals(11L, result.getFirst().orderId());
-        assertEquals("AAPL", result.getFirst().assetName());
-        verify(orderRepository).findByFilters(customerId, startDate, endDate, status, side, assetName);
+        assertEquals(1, result.content().size());
+        assertEquals(11L, result.content().getFirst().orderId());
+        assertEquals("AAPL", result.content().getFirst().assetName());
+        verify(orderRepository).findByFilters(customerId, startDate, endDate, status, side, assetName, 1, 10);
         verify(orderMapper).map(order);
     }
 }

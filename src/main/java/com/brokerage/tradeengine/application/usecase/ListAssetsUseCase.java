@@ -2,10 +2,10 @@ package com.brokerage.tradeengine.application.usecase;
 
 import com.brokerage.tradeengine.application.dto.response.AssetListItemResponse;
 import com.brokerage.tradeengine.application.port.in.ListAssetsInputPort;
+import com.brokerage.tradeengine.domain.common.PageableRequest;
+import com.brokerage.tradeengine.domain.common.PagedResult;
 import com.brokerage.tradeengine.domain.repository.AssetRepository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 public class ListAssetsUseCase implements ListAssetsInputPort {
 
@@ -17,9 +17,9 @@ public class ListAssetsUseCase implements ListAssetsInputPort {
 
     @Transactional(readOnly = true)
     @Override
-    public List<AssetListItemResponse> execute(String customerId) {
-        return assetRepository.findByCustomerId(customerId)
-                .stream()
+    public PagedResult<AssetListItemResponse> execute(String customerId, int pageNumber, int pageSize) {
+        var pagedAssets = assetRepository.findByCustomerId(customerId, PageableRequest.of(pageNumber, pageSize));
+        var assets = pagedAssets.content().stream()
                 .map(asset -> new AssetListItemResponse(
                         asset.getCustomerId(),
                         asset.getAssetName(),
@@ -27,5 +27,6 @@ public class ListAssetsUseCase implements ListAssetsInputPort {
                         asset.getUsableSize()
                 ))
                 .toList();
+        return PagedResult.of(assets, pagedAssets.totalPages(), pagedAssets.totalElements());
     }
 }

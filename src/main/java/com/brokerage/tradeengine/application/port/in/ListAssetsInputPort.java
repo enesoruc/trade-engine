@@ -1,11 +1,10 @@
 package com.brokerage.tradeengine.application.port.in;
 
 import com.brokerage.tradeengine.application.dto.response.AssetListItemResponse;
-
-import java.util.List;
+import com.brokerage.tradeengine.domain.common.PagedResult;
 
 public interface ListAssetsInputPort {
 
-    List<AssetListItemResponse> execute(String customerId);
+    PagedResult<AssetListItemResponse> execute(String customerId, int pageNumber, int pageSize);
 }
 
